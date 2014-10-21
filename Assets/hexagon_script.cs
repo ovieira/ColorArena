@@ -16,7 +16,7 @@ public class hexagon_script : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	    
+        currentColor = HexagonColor.WHITE;
 	}
 	
 	// Update is called once per frame
@@ -25,21 +25,24 @@ public class hexagon_script : MonoBehaviour {
 	}
 
     void setColor(HexagonColor c) {
-        switch (c) {
-            case HexagonColor.WHITE:
-                GetComponent<SpriteRenderer>().sprite = white;
-                break;
-            case HexagonColor.RED:
-                GetComponent<SpriteRenderer>().sprite = red;
-                break;
-            case HexagonColor.GREEN:
-                GetComponent<SpriteRenderer>().sprite = green;
-                break;
-            case HexagonColor.BLUE:
-                GetComponent<SpriteRenderer>().sprite = blue;
-                break;
-            default:
-                break;
+        if (currentColor == HexagonColor.WHITE) {
+            switch (c) {
+                case HexagonColor.RED:
+                    GetComponent<SpriteRenderer>().sprite = red;
+                    currentColor = HexagonColor.RED;
+                    break;
+                case HexagonColor.GREEN:
+                    GetComponent<SpriteRenderer>().sprite = green;
+                    currentColor = HexagonColor.GREEN;
+                    break;
+                case HexagonColor.BLUE:
+                    GetComponent<SpriteRenderer>().sprite = blue;
+                    currentColor = HexagonColor.GREEN;
+                    break;
+                default:
+                    break;
+            }
+            GameObject.FindGameObjectWithTag("GameManager").SendMessage("IncPlayer");
         }
     }
 }

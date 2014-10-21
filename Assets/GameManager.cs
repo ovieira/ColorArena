@@ -13,9 +13,16 @@ public class GameManager : MonoBehaviour {
 
     public int number_of_rows;
     public float offsetX;
+
+    public GameObject RedPlayer, GreenPlayer, BluePlayer;
+
+    public bool choosePlayerTile = true;
     // Use this for initialization
     void Start() {
+        GenerateGrid();
+    }
 
+    private void GenerateGrid() {
         unit_lenght = hex_prefab.renderer.bounds.size.x / Mathf.Sqrt(3);
         offsetX = Mathf.Sqrt(3) * unit_lenght * 0.5f;
 
@@ -41,15 +48,36 @@ public class GameManager : MonoBehaviour {
             if (hit.collider != null) {
                 Debug.Log(hit.collider.gameObject.tag);
                 setColor(hit.collider);
-                player = (player + 1) % 3;
             }
         }
     }
 
+    public void IncPlayer() {
+        player = (player + 1) % 3;
+    }
+
     private void setColor(Collider2D col) {
-        //if (col.GetComponent) {
-            //col.SendMessage("setColor", playerColor()); 
-        //}
+        if (choosePlayerTile) {
+            switch (playerColor()) {
+                case hexagon_script.HexagonColor.WHITE:
+                    break;
+                case hexagon_script.HexagonColor.RED:
+                    RedPlayer = col.gameObject;
+                    break;
+                case hexagon_script.HexagonColor.GREEN:
+                    GreenPlayer = col.gameObject;
+                    break;
+                case hexagon_script.HexagonColor.BLUE:
+                    BluePlayer = col.gameObject;
+                    break;
+                default:
+                    break;
+            }
+            if (BluePlayer != null && GreenPlayer != null && BluePlayer != null) {
+                choosePlayerTile = false;
+            }
+        }
+        col.SendMessage("setColor", playerColor()); 
     }
 
     public hexagon_script.HexagonColor playerColor() {

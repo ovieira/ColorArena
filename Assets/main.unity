@@ -169,7 +169,7 @@ GameObject:
   - 114: {fileID: 208729544}
   m_Layer: 0
   m_Name: GameManager
-  m_TagString: Untagged
+  m_TagString: GameManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -190,6 +190,10 @@ MonoBehaviour:
   player: 0
   number_of_rows: 11
   offsetX: 0
+  RedPlayer: {fileID: 0}
+  GreenPlayer: {fileID: 0}
+  BluePlayer: {fileID: 0}
+  choosePlayerTile: 1
 --- !u!4 &208729545
 Transform:
   m_ObjectHideFlags: 0
