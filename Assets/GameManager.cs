@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour {
     public GameObject RedPlayer, GreenPlayer, BluePlayer;
 
     public bool choosePlayerTile = true;
+    private int count=0;
     // Use this for initialization
     void Start() {
         GenerateGrid();
@@ -32,11 +33,11 @@ public class GameManager : MonoBehaviour {
             float posx = -offsetX * i;
 
             Vector3 init_pos = new Vector3(posx, posy, 0);
-            Instantiate(hex_prefab, init_pos, Quaternion.identity);
+            Instantiate(hex_prefab, init_pos, Quaternion.identity).name = "hex " + (++count).ToString();
 
             for (int j = 1; j < number_of_hexs; j++) {
                 init_pos.x += (offsetX * 2);
-                Instantiate(hex_prefab, init_pos, Quaternion.identity);
+                Instantiate(hex_prefab, init_pos, Quaternion.identity).name = "hex " + (++count).ToString();
             }
         }
     }
@@ -58,26 +59,38 @@ public class GameManager : MonoBehaviour {
 
     private void setColor(Collider2D col) {
         if (choosePlayerTile) {
-            switch (playerColor()) {
-                case hexagon_script.HexagonColor.WHITE:
-                    break;
-                case hexagon_script.HexagonColor.RED:
-                    RedPlayer = col.gameObject;
-                    break;
-                case hexagon_script.HexagonColor.GREEN:
-                    GreenPlayer = col.gameObject;
-                    break;
-                case hexagon_script.HexagonColor.BLUE:
-                    BluePlayer = col.gameObject;
-                    break;
-                default:
-                    break;
-            }
-            if (BluePlayer != null && GreenPlayer != null && BluePlayer != null) {
-                choosePlayerTile = false;
+            if (isStartTile(col)) {
+                switch (playerColor()) {
+                    case hexagon_script.HexagonColor.WHITE:
+                        break;
+                    case hexagon_script.HexagonColor.RED:
+                        RedPlayer = col.gameObject;
+                        break;
+                    case hexagon_script.HexagonColor.GREEN:
+                        GreenPlayer = col.gameObject;
+                        break;
+                    case hexagon_script.HexagonColor.BLUE:
+                        BluePlayer = col.gameObject;
+                        break;
+                    default:
+                        break;
+                }
+                if (BluePlayer != null && GreenPlayer != null && BluePlayer != null) {
+                    choosePlayerTile = false;
+                }
+                col.SendMessage("setColor", playerColor());
             }
         }
-        col.SendMessage("setColor", playerColor()); 
+        else {
+            col.SendMessage("setColor", playerColor());
+        }
+    }
+
+    private bool isStartTile(Collider2D col) {
+        string nmr = col.name;
+        if (nmr == "hex 1" || nmr == "hex 56" || nmr == "hex 66")
+            return true;
+        return false;
     }
 
     public hexagon_script.HexagonColor playerColor() {
