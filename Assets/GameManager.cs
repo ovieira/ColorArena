@@ -3,7 +3,7 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour {
 
-    public Transform hex_prefab;
+    public GameObject hex_prefab;
 
     public float unit_lenght = 1;
 
@@ -18,28 +18,55 @@ public class GameManager : MonoBehaviour {
 
     public bool choosePlayerTile = true;
     private int count=0;
+
+    public GameObject[,] grid;
     // Use this for initialization
     void Start() {
+        grid = new GameObject[11,11];
         GenerateGrid();
     }
 
     private void GenerateGrid() {
         unit_lenght = hex_prefab.renderer.bounds.size.x / Mathf.Sqrt(3);
         offsetX = Mathf.Sqrt(3) * unit_lenght * 0.5f;
-
+        int y = 10;
         for (int i = 0; i < number_of_rows; i++) {
             float posy = i * 1.5f * unit_lenght - (number_of_rows * 1.5f * unit_lenght) / 2;
             int number_of_hexs = 1 + i;
             float posx = -offsetX * i;
-
+            int x = 0;
             Vector3 init_pos = new Vector3(posx, posy, 0);
-            Instantiate(hex_prefab, init_pos, Quaternion.identity).name = "hex " + (++count).ToString();
 
+            GameObject o = (GameObject)Instantiate(hex_prefab, init_pos, Quaternion.identity);
+            o.name = "hex " + count.ToString();
+            StoreInGrid(x, y, o);
+            count++;
+            //grid[x,y] = GameObject.Find
+            //Debug.Log(x.ToString() + " " + y.ToString());
+            x++;
             for (int j = 1; j < number_of_hexs; j++) {
                 init_pos.x += (offsetX * 2);
-                Instantiate(hex_prefab, init_pos, Quaternion.identity).name = "hex " + (++count).ToString();
+                o = (GameObject)Instantiate(hex_prefab, init_pos, Quaternion.identity);
+                o.name = "hex " + count.ToString();
+                StoreInGrid(x, y, o);
+                count++;
+                //Debug.Log(x.ToString() + " " + y.ToString());
+                x++;
             }
+            y--;
         }
+    }
+
+    private void StoreInGrid(int x, int y, GameObject o) {
+        print("storing: " + o.gameObject.name);
+        //GameObject obj = GameObject.Find("s");
+        //if (obj == null) {
+        //    print(s + " not found");
+        //}
+        //else {
+        grid[x, y] = o;
+        //    Debug.Log(obj.name);
+        //}
     }
 
     // Update is called once per frame

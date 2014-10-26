@@ -185,7 +185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f99de1e5b2431a41984a9496c1cbc31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hex_prefab: {fileID: 400000, guid: 3789c40bfe551c04bb3fefd66beea1d0, type: 2}
+  hex_prefab: {fileID: 100000, guid: 3789c40bfe551c04bb3fefd66beea1d0, type: 2}
   unit_lenght: 1
   player: 0
   number_of_rows: 11
