@@ -19,6 +19,8 @@ public class hexagon_script : MonoBehaviour {
     public List<GameObject> adjacent;
     public int count;
 
+    public Vector2 grid_pos;
+
 	// Use this for initialization
 	void Start () {
         currentColor = HexagonColor.WHITE;
@@ -76,5 +78,9 @@ public class hexagon_script : MonoBehaviour {
 
     private void checkAdjacentTiles(HexagonColor c) {
         
+    }
+
+    public void SetGridPosition(Vector2 pos) {
+        grid_pos = pos;
     }
 }

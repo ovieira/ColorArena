@@ -65,6 +65,7 @@ public class GameManager : MonoBehaviour {
         //}
         //else {
         grid[x, y] = o;
+        o.SendMessage("SetGridPosition", new Vector2(x, y));
         //    Debug.Log(obj.name);
         //}
     }
