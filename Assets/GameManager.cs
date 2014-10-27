@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour {
 
@@ -21,6 +22,11 @@ public class GameManager : MonoBehaviour {
 
     public GameObject[,] grid;
     // Use this for initialization
+
+    private Vector2 dir1 = new Vector2(1, 0);
+    private Vector2 dir2 = new Vector2(1, -1);
+    private Vector2 dir3 = new Vector2(0, -1);
+    
     void Start() {
         grid = new GameObject[11, 11];
         GenerateGrid();
@@ -116,15 +122,73 @@ public class GameManager : MonoBehaviour {
 
     private void SetTileColor(Collider2D col, hexagon_script.HexagonColor color) {
         hexagon_script s = col.GetComponent<hexagon_script>();
-        s.setColor(color);
+        s.captureTile(color);
+        IncPlayer();
     }
 
     private void SetTileColor(Collider2D col) {
         hexagon_script s = col.GetComponent<hexagon_script>();
         if (s.isWhite()) {
-            s.setColor(getPlayerColor());
+            s.captureTile(getPlayerColor());
+            checkAdjacentTiles(s.GetGridPosition());
+            IncPlayer();
         }
         //col.SendMessage("setColor", playerColor());
+    }
+
+    private void checkAdjacentTiles(Vector2 origin) {
+        SpreadCheck(origin, dir1);
+    }
+
+    private void SpreadCheck(Vector2 origin, Vector2 dir) {
+        List<Vector2> tilesToColor = new List<Vector2>();
+        Vector2 currentPos;
+        if (!IncrementPos(out currentPos, origin, dir)){
+            return;
+	    }
+        while (true) {
+            hexagon_script s = GetHexScript(grid[(int)currentPos.x, (int)currentPos.y]);
+            if (s.isWhite()) {
+                return;
+            }
+            if (s.sameColor(getPlayerColor())){
+                break;
+            }
+            else {
+                tilesToColor.Add(currentPos);
+                if (!IncrementPos(out currentPos, currentPos, dir)) 
+                    break;
+            }
+        }
+        CaptureTiles(tilesToColor);
+    }
+
+    private void CaptureTiles(List<Vector2> l) {
+        foreach (Vector2 item in l) {
+            grid[(int)item.x, (int)item.y].SendMessage("captureTile", getPlayerColor());
+        }
+    }
+
+    private bool IncrementPos(out Vector2 currentPos, Vector2 paux, Vector2 dir) {
+        Vector2 newpos = paux + dir;
+        if (newpos.x < 0 || newpos.y < 0|| newpos.x > 10 || newpos.y > 10) {
+            currentPos = Vector2.zero;
+            return false;
+        }
+        else {
+            if (grid[(int)newpos.x, (int)newpos.y] == null) {
+                currentPos = Vector2.zero;
+                return false;
+            }
+            else {
+                currentPos = newpos;
+                return true;
+            }
+        }
+    }
+
+    private hexagon_script GetHexScript(GameObject go) {
+        return go.GetComponent<hexagon_script>();
     }
 
     private bool isStartTile(Collider2D col) {

@@ -52,6 +52,11 @@ public class hexagon_script : MonoBehaviour {
     }
 
     public void setColor(HexagonColor c) {
+        captureTile(c);
+        GameObject.FindGameObjectWithTag("GameManager").SendMessage("IncPlayer");
+    }
+
+    public void captureTile(HexagonColor c) {
         switch (c) {
             case HexagonColor.RED:
                 GetComponent<SpriteRenderer>().sprite = red;
@@ -68,7 +73,6 @@ public class hexagon_script : MonoBehaviour {
             default:
                 break;
         }
-        GameObject.FindGameObjectWithTag("GameManager").SendMessage("IncPlayer");
     }
 
     private void checkAdjacentTiles(HexagonColor c) {
@@ -83,7 +87,11 @@ public class hexagon_script : MonoBehaviour {
         return grid_pos;
     }
 
-    internal bool isWhite() {
+    public bool isWhite() {
         return currentColor == HexagonColor.WHITE;
+    }
+
+    public bool sameColor(HexagonColor c) {
+        return currentColor == c;
     }
 }
