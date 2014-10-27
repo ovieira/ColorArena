@@ -17,12 +17,12 @@ public class GameManager : MonoBehaviour {
     public GameObject RedPlayer, GreenPlayer, BluePlayer;
 
     public bool choosePlayerTile = true;
-    private int count=0;
+    private int count = 0;
 
     public GameObject[,] grid;
     // Use this for initialization
     void Start() {
-        grid = new GameObject[11,11];
+        grid = new GameObject[11, 11];
         GenerateGrid();
     }
 
@@ -88,7 +88,7 @@ public class GameManager : MonoBehaviour {
     private void setColor(Collider2D col) {
         if (choosePlayerTile) {
             if (isStartTile(col)) {
-                switch (playerColor()) {
+                switch (getPlayerColor()) {
                     case hexagon_script.HexagonColor.WHITE:
                         break;
                     case hexagon_script.HexagonColor.RED:
@@ -106,22 +106,35 @@ public class GameManager : MonoBehaviour {
                 if (BluePlayer != null && GreenPlayer != null && BluePlayer != null) {
                     choosePlayerTile = false;
                 }
-                col.SendMessage("setColor", playerColor());
+                SetTileColor(col, getPlayerColor());
             }
         }
         else {
-            col.SendMessage("setColor", playerColor());
+            SetTileColor(col);
         }
+    }
+
+    private void SetTileColor(Collider2D col, hexagon_script.HexagonColor color) {
+        hexagon_script s = col.GetComponent<hexagon_script>();
+        s.setColor(color);
+    }
+
+    private void SetTileColor(Collider2D col) {
+        hexagon_script s = col.GetComponent<hexagon_script>();
+        if (s.isWhite()) {
+            s.setColor(getPlayerColor());
+        }
+        //col.SendMessage("setColor", playerColor());
     }
 
     private bool isStartTile(Collider2D col) {
         string nmr = col.name;
-        if (nmr == "hex 1" || nmr == "hex 56" || nmr == "hex 66")
+        if (nmr == "hex 0" || nmr == "hex 55" || nmr == "hex 65")
             return true;
         return false;
     }
 
-    public hexagon_script.HexagonColor playerColor() {
+    public hexagon_script.HexagonColor getPlayerColor() {
         hexagon_script.HexagonColor c = hexagon_script.HexagonColor.BLUE;
         switch (player) {
             case 0:
@@ -147,6 +160,6 @@ public class GameManager : MonoBehaviour {
         if (GUI.Button(new Rect(15, 40, 90, 20), "Reset Game")) {
             Application.LoadLevel("Main");
         }
-        GUI.Label(new Rect(10, 80, 100, 40), "Current Player: " + (player+1).ToString());
+        GUI.Label(new Rect(10, 80, 100, 40), "Current Player: " + (player + 1).ToString());
     }
 }

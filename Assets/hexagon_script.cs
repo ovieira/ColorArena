@@ -21,13 +21,13 @@ public class hexagon_script : MonoBehaviour {
 
     public Vector2 grid_pos;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start() {
         currentColor = HexagonColor.WHITE;
         //adjacent = new GameObject[6];
         adjacent = new List<GameObject>();
         AddAdjacentTiles();
-	}
+    }
 
     [ContextMenu("Adjacent")]
     private void AddAdjacentTiles() {
@@ -45,42 +45,45 @@ public class hexagon_script : MonoBehaviour {
             }
         }
     }
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 
-    void setColor(HexagonColor c) {
-        if (currentColor == HexagonColor.WHITE) {
-            switch (c) {
-                case HexagonColor.RED:
-                    GetComponent<SpriteRenderer>().sprite = red;
-                    currentColor = HexagonColor.RED;
-                    break;
-                case HexagonColor.GREEN:
-                    GetComponent<SpriteRenderer>().sprite = green;
-                    currentColor = HexagonColor.GREEN;
-                    break;
-                case HexagonColor.BLUE:
-                    GetComponent<SpriteRenderer>().sprite = blue;
-                    currentColor = HexagonColor.GREEN;
-                    break;
-                default:
-                    break;
-            }
-            GameObject.FindGameObjectWithTag("GameManager").SendMessage("IncPlayer");
+    // Update is called once per frame
+    void Update() {
+
+    }
+
+    public void setColor(HexagonColor c) {
+        switch (c) {
+            case HexagonColor.RED:
+                GetComponent<SpriteRenderer>().sprite = red;
+                currentColor = HexagonColor.RED;
+                break;
+            case HexagonColor.GREEN:
+                GetComponent<SpriteRenderer>().sprite = green;
+                currentColor = HexagonColor.GREEN;
+                break;
+            case HexagonColor.BLUE:
+                GetComponent<SpriteRenderer>().sprite = blue;
+                currentColor = HexagonColor.GREEN;
+                break;
+            default:
+                break;
         }
-        else {
-            checkAdjacentTiles(c);
-        }
+        GameObject.FindGameObjectWithTag("GameManager").SendMessage("IncPlayer");
     }
 
     private void checkAdjacentTiles(HexagonColor c) {
-        
+
     }
 
     public void SetGridPosition(Vector2 pos) {
         grid_pos = pos;
+    }
+
+    public Vector2 GetGridPosition() {
+        return grid_pos;
+    }
+
+    internal bool isWhite() {
+        return currentColor == HexagonColor.WHITE;
     }
 }
