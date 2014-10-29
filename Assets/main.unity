@@ -193,7 +193,7 @@ MonoBehaviour:
   RedPlayer: {fileID: 0}
   GreenPlayer: {fileID: 0}
   BluePlayer: {fileID: 0}
-  choosePlayerTile: 1
+  firstround: 1
 --- !u!4 &208729545
 Transform:
   m_ObjectHideFlags: 0

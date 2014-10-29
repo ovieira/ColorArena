@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour {
 
     public GameObject RedPlayer, GreenPlayer, BluePlayer;
 
-    public bool choosePlayerTile = true;
+    public bool firstround = true;
     private int count = 0;
 
     public GameObject[,] grid;
@@ -82,7 +82,7 @@ public class GameManager : MonoBehaviour {
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector3.zero);
             if (hit.collider != null) {
                 Debug.Log(hit.collider.gameObject.tag);
-                setColor(hit.collider);
+                chooseTile(hit.collider);
             }
         }
     }
@@ -91,8 +91,8 @@ public class GameManager : MonoBehaviour {
         player = (player + 1) % 3;
     }
 
-    private void setColor(Collider2D col) {
-        if (choosePlayerTile) {
+    private void chooseTile(Collider2D col) {
+        if (firstround) {
             if (isStartTile(col)) {
                 switch (getPlayerColor()) {
                     case hexagon_script.HexagonColor.WHITE:
@@ -110,7 +110,7 @@ public class GameManager : MonoBehaviour {
                         break;
                 }
                 if (BluePlayer != null && GreenPlayer != null && BluePlayer != null) {
-                    choosePlayerTile = false;
+                    firstround = false;
                 }
                 SetTileColor(col, getPlayerColor());
             }
@@ -138,6 +138,11 @@ public class GameManager : MonoBehaviour {
 
     private void checkAdjacentTiles(Vector2 origin) {
         SpreadCheck(origin, dir1);
+        SpreadCheck(origin, dir2);
+        SpreadCheck(origin, dir3);
+        SpreadCheck(origin, dir1 * -1);
+        SpreadCheck(origin, dir2 * -1);
+        SpreadCheck(origin, dir3 * -1);
     }
 
     private void SpreadCheck(Vector2 origin, Vector2 dir) {
@@ -203,7 +208,7 @@ public class GameManager : MonoBehaviour {
     }
 
     public hexagon_script.HexagonColor getPlayerColor() {
-        hexagon_script.HexagonColor c = hexagon_script.HexagonColor.BLUE;
+        hexagon_script.HexagonColor c = hexagon_script.HexagonColor.WHITE;
         switch (player) {
             case 0:
                 c = hexagon_script.HexagonColor.RED;
