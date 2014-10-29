@@ -143,6 +143,7 @@ public class GameManager : MonoBehaviour {
     private void SpreadCheck(Vector2 origin, Vector2 dir) {
         List<Vector2> tilesToColor = new List<Vector2>();
         Vector2 currentPos;
+        bool canCapture = false;
         if (!IncrementPos(out currentPos, origin, dir)){
             return;
 	    }
@@ -152,6 +153,7 @@ public class GameManager : MonoBehaviour {
                 return;
             }
             if (s.sameColor(getPlayerColor())){
+                canCapture = true;
                 break;
             }
             else {
@@ -160,7 +162,9 @@ public class GameManager : MonoBehaviour {
                     break;
             }
         }
-        CaptureTiles(tilesToColor);
+        if (canCapture) {
+            CaptureTiles(tilesToColor);
+        }
     }
 
     private void CaptureTiles(List<Vector2> l) {
