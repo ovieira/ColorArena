@@ -16,9 +16,11 @@ public class GameManager : MonoBehaviour {
     public float offsetX;
 
     public GameObject RedPlayer, GreenPlayer, BluePlayer;
+    private List<Vector2> UsableGridPositions;
+    private List<hexagon_script> RedFinalTiles, GreenFinalTiles, BlueFinalTiles;
 
     public bool firstround = true;
-    private int count = 0;
+    private int count;
 
     public GameObject[,] grid;
     // Use this for initialization
@@ -26,9 +28,11 @@ public class GameManager : MonoBehaviour {
     private Vector2 dir1 = new Vector2(1, 0);
     private Vector2 dir2 = new Vector2(1, -1);
     private Vector2 dir3 = new Vector2(0, -1);
+    private int playsLeft;
     
     void Start() {
         grid = new GameObject[11, 11];
+        UsableGridPositions = new List<Vector2>();
         GenerateGrid();
     }
 
@@ -61,6 +65,7 @@ public class GameManager : MonoBehaviour {
             }
             y--;
         }
+        playsLeft = count;
     }
 
     private void StoreInGrid(int x, int y, GameObject o) {
@@ -71,19 +76,24 @@ public class GameManager : MonoBehaviour {
         //}
         //else {
         grid[x, y] = o;
-        o.SendMessage("SetGridPosition", new Vector2(x, y));
+        Vector2 v = new Vector2(x, y);
+        o.SendMessage("SetGridPosition", v  );
+        UsableGridPositions.Add(v);
         //    Debug.Log(obj.name);
         //}
     }
 
     // Update is called once per frame
     void Update() {
-        if (Input.GetButtonDown("Fire1")) {
+        if (Input.GetButtonDown("Fire1") && playsLeft > 0) {
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector3.zero);
             if (hit.collider != null) {
                 Debug.Log(hit.collider.gameObject.tag);
                 chooseTile(hit.collider);
             }
+        }
+        if (playsLeft == 0) {
+            checkWinner();
         }
     }
 
@@ -111,13 +121,19 @@ public class GameManager : MonoBehaviour {
                 }
                 if (BluePlayer != null && GreenPlayer != null && BluePlayer != null) {
                     firstround = false;
+                    SetTargetPositions();
                 }
                 SetTileColor(col, getPlayerColor());
+                playsLeft--;
             }
         }
         else {
             SetTileColor(col);
         }
+    }
+
+    private void SetTargetPositions() {
+        
     }
 
     private void SetTileColor(Collider2D col, hexagon_script.HexagonColor color) {
@@ -132,8 +148,72 @@ public class GameManager : MonoBehaviour {
             s.captureTile(getPlayerColor());
             checkAdjacentTiles(s.GetGridPosition());
             IncPlayer();
+            playsLeft--;
         }
         //col.SendMessage("setColor", playerColor());
+    }
+
+    private void checkWinner() {
+        int redcount = 0;
+        int greencount = 0;
+        int bluecount = 0;
+        RedFinalTiles = new List<hexagon_script>();
+        GreenFinalTiles = new List<hexagon_script>();
+        BlueFinalTiles = new List<hexagon_script>();
+
+        foreach (Vector2 item in UsableGridPositions) {
+            hexagon_script s = GetHexScript(item);
+            switch (s.currentColor) {
+                case hexagon_script.HexagonColor.WHITE:
+                    break;
+                case hexagon_script.HexagonColor.RED:
+                    redcount++;
+                    RedFinalTiles.Add(s);
+                    break;
+                case hexagon_script.HexagonColor.GREEN:
+                    greencount++;
+                    GreenFinalTiles.Add(s);
+                    break;
+                case hexagon_script.HexagonColor.BLUE:
+                    bluecount++;
+                    BlueFinalTiles.Add(s);
+                    break;
+                default:
+                    break;
+            }
+        }
+        if (redcount > greencount || redcount > bluecount) {
+            print("Red Wins!!!!");
+            WinnerAnimation(RedFinalTiles);
+            LooserAnimation(GreenFinalTiles);
+            LooserAnimation(BlueFinalTiles);
+        }
+        else if (greencount > bluecount) {
+            print("Green Wins!!!!");
+            WinnerAnimation(GreenFinalTiles);
+            LooserAnimation(BlueFinalTiles);
+            LooserAnimation(RedFinalTiles);
+
+        }
+        else {
+            print("Blue Wins!!!!");
+            WinnerAnimation(BlueFinalTiles);
+            LooserAnimation(RedFinalTiles);
+            LooserAnimation(GreenFinalTiles);
+            
+        }
+    }
+
+    private void LooserAnimation(List<hexagon_script> list) {
+        foreach (hexagon_script item in list) {
+            item.LoosingTile();
+        }
+    }
+
+    private void WinnerAnimation(List<hexagon_script> list) {
+        foreach (hexagon_script item in list) {
+            item.WinningTile();
+        }
     }
 
     private void checkAdjacentTiles(Vector2 origin) {
@@ -149,11 +229,11 @@ public class GameManager : MonoBehaviour {
         List<Vector2> tilesToColor = new List<Vector2>();
         Vector2 currentPos;
         bool canCapture = false;
-        if (!IncrementPos(out currentPos, origin, dir)){
+        if (!IncrementPosition(out currentPos, origin, dir)){
             return;
 	    }
         while (true) {
-            hexagon_script s = GetHexScript(grid[(int)currentPos.x, (int)currentPos.y]);
+            hexagon_script s = GetHexScript(currentPos);
             if (s.isWhite()) {
                 return;
             }
@@ -163,7 +243,7 @@ public class GameManager : MonoBehaviour {
             }
             else {
                 tilesToColor.Add(currentPos);
-                if (!IncrementPos(out currentPos, currentPos, dir)) 
+                if (!IncrementPosition(out currentPos, currentPos, dir)) 
                     break;
             }
         }
@@ -179,7 +259,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    private bool IncrementPos(out Vector2 currentPos, Vector2 paux, Vector2 dir) {
+    private bool IncrementPosition(out Vector2 currentPos, Vector2 paux, Vector2 dir) {
         Vector2 newpos = paux + dir;
         if (newpos.x < 0 || newpos.y < 0|| newpos.x > 10 || newpos.y > 10) {
             currentPos = Vector2.zero;
@@ -199,6 +279,10 @@ public class GameManager : MonoBehaviour {
 
     private hexagon_script GetHexScript(GameObject go) {
         return go.GetComponent<hexagon_script>();
+    }
+
+    private hexagon_script GetHexScript(Vector2 v) {
+        return GetHexScript(grid[(int)v.x, (int)v.y]);
     }
 
     private bool isStartTile(Collider2D col) {
@@ -234,6 +318,6 @@ public class GameManager : MonoBehaviour {
         if (GUI.Button(new Rect(15, 40, 90, 20), "Reset Game")) {
             Application.LoadLevel("Main");
         }
-        GUI.Label(new Rect(10, 80, 100, 40), "Current Player: " + (player + 1).ToString());
+        GUI.Label(new Rect(10, 80, 100, 40), "Current Player: " + getPlayerColor().ToString());
     }
 }

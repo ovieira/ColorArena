@@ -25,6 +25,8 @@ public class hexagon_script : MonoBehaviour {
     public Vector2 grid_pos;
     public Vector2 screen_pos;
     public GUIStyle _style;
+    private bool end = false;
+    private Color endColor;
 
     // Use this for initialization
     void Start() {
@@ -37,7 +39,11 @@ public class hexagon_script : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        _spriterenderer.color = Color.Lerp(_spriterenderer.color, getCurrentColor(), Time.deltaTime);
+        if(!end)
+            _spriterenderer.color = Color.Lerp(_spriterenderer.color, getCurrentColor(), Time.deltaTime*5);
+        else {
+            _spriterenderer.color = Color.Lerp(_spriterenderer.color, endColor, Time.deltaTime);
+        }
     }
 
     private Color getCurrentColor() {
@@ -98,7 +104,31 @@ public class hexagon_script : MonoBehaviour {
         return currentColor == c;
     }
 
-    //void OnGUI() {
-    //    GUI.Label(new Rect(screen_pos.x - 15, Screen.height - screen_pos.y, 10, 20), currentColor.ToString(), _style);
-    //}
+    void OnGUI() {
+        //GUI.Label(new Rect(screen_pos.x - 15, Screen.height - screen_pos.y, 10, 20), grid_pos.ToString(), _style);
+    }
+
+    [ContextMenu("WinningTile")]
+    public void WinningTile() {
+        //InvokeRepeating("WinnerAnimation", 0f, 1f);
+    }
+
+    IEnumerator WinnerAnimation() {
+        end = true;
+        int i = Random.Range(0, 2);
+        print(i);
+        if (i == 0) {
+            endColor = getCurrentColor();
+        }
+        else {
+            endColor = Color.white;
+        }
+        return null;
+    }
+
+    [ContextMenu("LoosingTile")]
+    public void LoosingTile() {
+        endColor = Color.black;
+        end = true;
+    }
 }
