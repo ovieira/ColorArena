@@ -6,6 +6,9 @@ public class hexagon_script : MonoBehaviour {
 
     public Sprite white, red, green, blue;
 
+    private SpriteRenderer _spriterenderer;
+    private Color _spritecolor;
+
     public enum HexagonColor {
         WHITE,
         RED,
@@ -28,11 +31,27 @@ public class hexagon_script : MonoBehaviour {
         currentColor = HexagonColor.WHITE;
         //adjacent = new GameObject[6];
         screen_pos = Camera.main.WorldToScreenPoint(transform.position);
+        _spriterenderer = GetComponent<SpriteRenderer>();
+        _spritecolor = _spriterenderer.color;
     }
 
     // Update is called once per frame
     void Update() {
+        _spriterenderer.color = Color.Lerp(_spriterenderer.color, getCurrentColor(), Time.deltaTime);
+    }
 
+    private Color getCurrentColor() {
+        switch (currentColor) {
+            case HexagonColor.WHITE:
+                return Color.white;
+            case HexagonColor.RED:
+                return Color.red;
+            case HexagonColor.GREEN:
+                return Color.green;
+            case HexagonColor.BLUE:
+                return Color.blue;
+        }
+        return Color.white;
     }
 
     public void setColor(HexagonColor c) {
@@ -43,15 +62,15 @@ public class hexagon_script : MonoBehaviour {
     public void captureTile(HexagonColor c) {
         switch (c) {
             case HexagonColor.RED:
-                GetComponent<SpriteRenderer>().sprite = red;
+                //GetComponent<SpriteRenderer>().sprite = red;
                 currentColor = HexagonColor.RED;
                 break;
             case HexagonColor.GREEN:
-                GetComponent<SpriteRenderer>().sprite = green;
+                //GetComponent<SpriteRenderer>().sprite = green;
                 currentColor = HexagonColor.GREEN;
                 break;
             case HexagonColor.BLUE:
-                GetComponent<SpriteRenderer>().sprite = blue;
+                //GetComponent<SpriteRenderer>().sprite = blue;
                 currentColor = HexagonColor.BLUE;
                 break;
             default:

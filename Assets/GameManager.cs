@@ -175,6 +175,7 @@ public class GameManager : MonoBehaviour {
     private void CaptureTiles(List<Vector2> l) {
         foreach (Vector2 item in l) {
             grid[(int)item.x, (int)item.y].SendMessage("captureTile", getPlayerColor());
+            checkAdjacentTiles(item);
         }
     }
 
