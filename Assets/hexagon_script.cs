@@ -27,6 +27,7 @@ public class hexagon_script : MonoBehaviour {
     public GUIStyle _style;
     private bool end = false;
     private Color endColor;
+    private bool winning_animation_bool = true;
 
     // Use this for initialization
     void Start() {
@@ -42,7 +43,12 @@ public class hexagon_script : MonoBehaviour {
         if(!end)
             _spriterenderer.color = Color.Lerp(_spriterenderer.color, getCurrentColor(), Time.deltaTime*5);
         else {
-            _spriterenderer.color = Color.Lerp(_spriterenderer.color, endColor, Time.deltaTime);
+            if (winning_animation_bool) {
+                float t = (Mathf.Sin(Time.time)+1)/2;
+                _spriterenderer.color = Color.Lerp(getCurrentColor(), endColor, t);
+            }
+            else
+                _spriterenderer.color = Color.Lerp(_spriterenderer.color, endColor, Time.deltaTime);
         }
     }
 
@@ -62,7 +68,7 @@ public class hexagon_script : MonoBehaviour {
 
     public void setColor(HexagonColor c) {
         captureTile(c);
-        GameObject.FindGameObjectWithTag("GameManager").SendMessage("IncPlayer");
+        //GameObject.FindGameObjectWithTag("GameManager").SendMessage("IncPlayer");
     }
 
     public void captureTile(HexagonColor c) {
@@ -110,25 +116,15 @@ public class hexagon_script : MonoBehaviour {
 
     [ContextMenu("WinningTile")]
     public void WinningTile() {
-        //InvokeRepeating("WinnerAnimation", 0f, 1f);
-    }
-
-    IEnumerator WinnerAnimation() {
         end = true;
-        int i = Random.Range(0, 2);
-        print(i);
-        if (i == 0) {
-            endColor = getCurrentColor();
-        }
-        else {
-            endColor = Color.white;
-        }
-        return null;
+        endColor = Color.white;
+        winning_animation_bool = true;
     }
 
     [ContextMenu("LoosingTile")]
     public void LoosingTile() {
         endColor = Color.black;
         end = true;
+        winning_animation_bool = false;
     }
 }

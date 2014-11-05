@@ -69,7 +69,7 @@ public class GameManager : MonoBehaviour {
     }
 
     private void StoreInGrid(int x, int y, GameObject o) {
-        print("storing: " + o.gameObject.name);
+        //print("storing: " + o.gameObject.name);
         //GameObject obj = GameObject.Find("s");
         //if (obj == null) {
         //    print(s + " not found");
@@ -99,6 +99,8 @@ public class GameManager : MonoBehaviour {
 
     public void IncPlayer() {
         player = (player + 1) % 3;
+        playsLeft--;
+        print(playsLeft.ToString() + " plays left.");
     }
 
     private void chooseTile(Collider2D col) {
@@ -124,7 +126,6 @@ public class GameManager : MonoBehaviour {
                     SetTargetPositions();
                 }
                 SetTileColor(col, getPlayerColor());
-                playsLeft--;
             }
         }
         else {
@@ -148,7 +149,7 @@ public class GameManager : MonoBehaviour {
             s.captureTile(getPlayerColor());
             checkAdjacentTiles(s.GetGridPosition());
             IncPlayer();
-            playsLeft--;
+            
         }
         //col.SendMessage("setColor", playerColor());
     }
