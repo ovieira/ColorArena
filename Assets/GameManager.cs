@@ -29,7 +29,16 @@ public class GameManager : MonoBehaviour {
     private Vector2 dir2 = new Vector2(1, -1);
     private Vector2 dir3 = new Vector2(0, -1);
     private int playsLeft;
-    
+    private int gameMode;
+
+    private struct TargetPositions {
+        public Vector2 FirstPosition;
+        public List<Vector2> targets;
+        public hexagon_script.HexagonColor playercolor;
+    }
+
+    TargetPositions redTargets, greenTargets, blueTargets;
+
     void Start() {
         grid = new GameObject[11, 11];
         UsableGridPositions = new List<Vector2>();
@@ -92,15 +101,13 @@ public class GameManager : MonoBehaviour {
                 chooseTile(hit.collider);
             }
         }
-        if (playsLeft == 0) {
-            checkWinner();
-        }
     }
 
     public void IncPlayer() {
         player = (player + 1) % 3;
         playsLeft--;
         print(playsLeft.ToString() + " plays left.");
+        checkWinner();
     }
 
     private void chooseTile(Collider2D col) {
@@ -134,7 +141,46 @@ public class GameManager : MonoBehaviour {
     }
 
     private void SetTargetPositions() {
-        
+        hexagon_script red = GetHexScript(RedPlayer);
+        hexagon_script green = GetHexScript(GreenPlayer);
+        hexagon_script blue = GetHexScript(BluePlayer);
+
+        setTargets(red.grid_pos, out redTargets, hexagon_script.HexagonColor.RED);
+        setTargets(green.grid_pos, out greenTargets, hexagon_script.HexagonColor.GREEN);
+        setTargets(blue.grid_pos, out blueTargets, hexagon_script.HexagonColor.BLUE);
+    }
+
+    private void setTargets(Vector2 v, out TargetPositions targs, hexagon_script.HexagonColor c) {
+        TargetPositions tp = new TargetPositions();
+        if (v == new Vector2(0,10)) {
+            tp.FirstPosition = v;
+            tp.targets = new List<Vector2>();
+            Vector2 init = Vector2.zero;
+            tp.targets.Add(init);
+            while (IncrementPositionForWinnerCheck(out init, init, Vector2.right)) {
+                tp.targets.Add(init);
+            }
+        }
+        else if (v == new Vector2(0,0)) {
+            tp.FirstPosition = v;
+            tp.targets = new List<Vector2>();
+            Vector2 init = new Vector2(0,10);
+            tp.targets.Add(init);
+            while (IncrementPositionForWinnerCheck(out init, init, new Vector2(1,-1))) {
+                tp.targets.Add(init);
+            }
+        }
+        else if (v == new Vector2(10, 0)) {
+            tp.FirstPosition = v;
+            tp.targets = new List<Vector2>();
+            Vector2 init = new Vector2(0, 0);
+            tp.targets.Add(init);
+            while (IncrementPositionForWinnerCheck(out init, init, new Vector2(0, 1))) {
+                tp.targets.Add(init);
+            }
+        }
+        tp.playercolor = c;
+        targs = tp;
     }
 
     private void SetTileColor(Collider2D col, hexagon_script.HexagonColor color) {
@@ -155,6 +201,95 @@ public class GameManager : MonoBehaviour {
     }
 
     private void checkWinner() {
+        if (gameMode == 0) {
+            MostTilesWin(); 
+        }
+        else {
+            FirtConnectedToEdgeWin();
+        }
+    }
+
+    private void FirtConnectedToEdgeWin() {
+        if (SpreadCheckWinner(redTargets)) {
+            print("Red Wins");
+        }
+    }
+
+    private bool SpreadCheckWinner(TargetPositions targs) {
+        List<Vector2> tilesCaptured = new List<Vector2>();
+        Vector2 currentPos = targs.FirstPosition;
+
+        tilesCaptured = RecursiveSpread(targs.FirstPosition, targs.playercolor, tilesCaptured);
+
+        foreach (Vector2 item in tilesCaptured) {
+            if (targs.targets.Contains(item)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private List<Vector2> RecursiveSpread(Vector2 pos, hexagon_script.HexagonColor c, List<Vector2> tilesCaptured) {
+        //RecursiveSpreadAux(pos, c, ref tilesCaptured);
+
+        List<Vector2> nb = getNeighbors(pos);
+        List<Vector2> nbcopy = getNeighbors(pos);
+
+
+        foreach (Vector2 item in nb) {
+            if (!tilesCaptured.Contains(item)) {
+                if (GetHexScript(item).sameColor(c)) {
+                    tilesCaptured.Add(item);
+                    Debug.Log(item.x.ToString() + " " + item.y.ToString());
+                }
+                else
+                    nbcopy.Remove(item);
+            }
+            else
+                nbcopy.Remove(item);
+        }
+        foreach (Vector2 item in nbcopy) {
+           tilesCaptured = RecursiveSpread(item, c, tilesCaptured);
+        }
+
+        return tilesCaptured;
+    }
+
+    public List<Vector2> getNeighbors(Vector2 pos) {
+        List<Vector2> v = new List<Vector2>();
+        v = AddGridNeighbor(v, pos + dir1);
+        v = AddGridNeighbor(v, pos - dir1);
+        v = AddGridNeighbor(v, pos + dir2);
+        v = AddGridNeighbor(v, pos - dir2);
+        v = AddGridNeighbor(v, pos + dir3);
+        v = AddGridNeighbor(v, pos - dir3);
+        return v;
+    }
+
+    [ContextMenu("tst")]
+    public void test() {
+        SpreadCheckWinner(redTargets);
+    }
+
+    private List<Vector2> AddGridNeighbor(List<Vector2> lst, Vector2 v) {
+        if (isTile(v)) {
+            lst.Add(v);
+        }
+        return lst;
+    }
+
+    private bool isTile(Vector2 v) {
+        if (v.x < 0 || v.y < 0 || v.x > 10 || v.y > 10) {
+            return false;
+        }
+        return grid[(int)v.x, (int)v.y] != null;
+    }
+
+    private void MostTilesWin() {
+        if (playsLeft > 0)
+            return;
+
         int redcount = 0;
         int greencount = 0;
         int bluecount = 0;
@@ -201,7 +336,7 @@ public class GameManager : MonoBehaviour {
             WinnerAnimation(BlueFinalTiles);
             LooserAnimation(RedFinalTiles);
             LooserAnimation(GreenFinalTiles);
-            
+
         }
     }
 
@@ -230,7 +365,7 @@ public class GameManager : MonoBehaviour {
         List<Vector2> tilesToColor = new List<Vector2>();
         Vector2 currentPos;
         bool canCapture = false;
-        if (!IncrementPosition(out currentPos, origin, dir)){
+        if (!IncrementPositionForSpreadCheck(out currentPos, origin, dir)){
             return;
 	    }
         while (true) {
@@ -244,7 +379,7 @@ public class GameManager : MonoBehaviour {
             }
             else {
                 tilesToColor.Add(currentPos);
-                if (!IncrementPosition(out currentPos, currentPos, dir)) 
+                if (!IncrementPositionForSpreadCheck(out currentPos, currentPos, dir)) 
                     break;
             }
         }
@@ -260,7 +395,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    private bool IncrementPosition(out Vector2 currentPos, Vector2 paux, Vector2 dir) {
+    private bool IncrementPositionForSpreadCheck(out Vector2 currentPos, Vector2 paux, Vector2 dir) {
         Vector2 newpos = paux + dir;
         if (newpos.x < 0 || newpos.y < 0|| newpos.x > 10 || newpos.y > 10) {
             currentPos = Vector2.zero;
@@ -275,6 +410,18 @@ public class GameManager : MonoBehaviour {
                 currentPos = newpos;
                 return true;
             }
+        }
+    }
+
+    private bool IncrementPositionForWinnerCheck(out Vector2 currentPos, Vector2 paux, Vector2 dir) {
+        Vector2 newpos = paux + dir;
+        if (newpos.x < 0 || newpos.y < 0 || newpos.x > 10 || newpos.y > 10) {
+            currentPos = Vector2.zero;
+            return false;
+        }
+        else {
+            currentPos = newpos;
+            return true;
         }
     }
 
@@ -320,5 +467,11 @@ public class GameManager : MonoBehaviour {
             Application.LoadLevel("Main");
         }
         GUI.Label(new Rect(10, 80, 100, 40), "Current Player: " + getPlayerColor().ToString());
+        if (GUI.Button(new Rect(15, 130, 150, 20), "Most Tiles Win")) {
+            gameMode = 0;
+        }
+        if (GUI.Button(new Rect(15, 150, 150, 20), "First Connected Wins")) {
+            gameMode = 1;
+        }  
     }
 }
