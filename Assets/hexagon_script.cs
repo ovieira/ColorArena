@@ -45,7 +45,7 @@ public class hexagon_script : MonoBehaviour {
         else {
             if (winning_animation_bool) {
                 float t = (Mathf.Sin(Time.time)+1)/2;
-                _spriterenderer.color = Color.Lerp(getCurrentColor(), endColor, t);
+                _spriterenderer.color = Color.Lerp(endColor,getCurrentColor(),t);
             }
             else
                 _spriterenderer.color = Color.Lerp(_spriterenderer.color, endColor, Time.deltaTime);
@@ -111,7 +111,7 @@ public class hexagon_script : MonoBehaviour {
     }
 
     void OnGUI() {
-        GUI.Label(new Rect(screen_pos.x - 15, Screen.height - screen_pos.y, 10, 20), grid_pos.ToString(), _style);
+        //GUI.Label(new Rect(screen_pos.x - 15, Screen.height - screen_pos.y, 10, 20), grid_pos.ToString(), _style);
     }
 
     [ContextMenu("WinningTile")]

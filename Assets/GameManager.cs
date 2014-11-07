@@ -210,12 +210,24 @@ public class GameManager : MonoBehaviour {
     }
 
     private void FirtConnectedToEdgeWin() {
-        if (SpreadCheckWinner(redTargets)) {
+        List<Vector2> lst;
+        if (SpreadCheckWinner(redTargets, out lst)) {
+            WinnerAnimation(lst);
             print("Red Wins");
+        }
+        if (SpreadCheckWinner(greenTargets, out lst)) {
+            WinnerAnimation(lst);
+            print("Green Wins");
+        }
+        if (SpreadCheckWinner(blueTargets, out lst)) {
+            WinnerAnimation(lst);
+            print("Blue Wins");
         }
     }
 
-    private bool SpreadCheckWinner(TargetPositions targs) {
+    
+
+    private bool SpreadCheckWinner(TargetPositions targs, out List<Vector2> lst) {
         List<Vector2> tilesCaptured = new List<Vector2>();
         Vector2 currentPos = targs.FirstPosition;
 
@@ -223,10 +235,11 @@ public class GameManager : MonoBehaviour {
 
         foreach (Vector2 item in tilesCaptured) {
             if (targs.targets.Contains(item)) {
+                lst = tilesCaptured;
                 return true;
             }
         }
-
+        lst = null;
         return false;
     }
 
@@ -267,10 +280,7 @@ public class GameManager : MonoBehaviour {
         return v;
     }
 
-    [ContextMenu("tst")]
-    public void test() {
-        SpreadCheckWinner(redTargets);
-    }
+   
 
     private List<Vector2> AddGridNeighbor(List<Vector2> lst, Vector2 v) {
         if (isTile(v)) {
@@ -349,6 +359,12 @@ public class GameManager : MonoBehaviour {
     private void WinnerAnimation(List<hexagon_script> list) {
         foreach (hexagon_script item in list) {
             item.WinningTile();
+        }
+    }
+
+    private void WinnerAnimation(List<Vector2> lst) {
+        foreach (Vector2 item in lst) {
+            GetHexScript(item).WinningTile();
         }
     }
 
